@@ -26,7 +26,8 @@ const TrainerType = new GraphQLObjectType({
   name: "Trainer",
   fields: () => ({
     id: { type: GraphQLID },
-    name: { type: GraphQLString },
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
     age: { type: GraphQLInt },
     specialty: { type: GraphQLString },
     sex: { type: GraphQLString },
@@ -148,48 +149,49 @@ const ExerciseType = new GraphQLObjectType({
   })
 });
 
-// const UserType = new GraphQLObjectType({
-//   name: "User",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     name: { type: GraphQLString },
-//     age: { type: GraphQLInt },
-//     sex: { type: GraphQLString },
-//     sportsPlayed: { type: GraphQLString },
-//     experienceLevel: { type: GraphQLString },
-//     picture: { type: GraphQLString },
-//     email: { type: GraphQLString },
-//     password: { type: GraphQLString },
+const UserType = new GraphQLObjectType({
+  name: "User",
+  fields: () => ({
+    id: { type: GraphQLID },
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+    age: { type: GraphQLInt },
+    sex: { type: GraphQLString },
+    sportsPlayed: { type: GraphQLString },
+    experienceLevel: { type: GraphQLString },
+    picture: { type: GraphQLString },
+    email: { type: GraphQLString },
+    password: { type: GraphQLString }
 
-//     programs: {
-//       type: new GraphQLList(ProgramType),
-//       resolve(parent, args) {
-//         const enrolled = EnrolledProgram.find({ userID: parent.id });
-//         const programs = enrolled.forEach(enrolledObj =>
-//           Program.findById(enrolledObj.programID)
-//         );
-//         return programs;
-//       }
-//     },
-//     likes: {
-//       type: new GraphQLList(LikeType),
-//       resolve(parent, args) {
-//         const likes = Like.find({ userID: parent.id });
-//         const liked = likes.forEach(likedObj =>
-//           Like.findById(likedObj.programID)
-//         );
-//         return liked;
-//       }
-//     },
-//     goals: {
-//       type: GoalType,
-//       resolve(parent, args) {
-//         const goalsObj = Goal.find({ userID: parent.id });
-//         return goalsObj.goal;
-//       }
-//     }
-//   })
-// });
+    // programs: {
+    //   type: new GraphQLList(ProgramType),
+    //   resolve(parent, args) {
+    //     const enrolled = EnrolledProgram.find({ userID: parent.id });
+    //     const programs = enrolled.forEach(enrolledObj =>
+    //       Program.findById(enrolledObj.programID)
+    //     );
+    //     return programs;
+    //   }
+    // },
+    // likes: {
+    //   type: new GraphQLList(LikeType),
+    //   resolve(parent, args) {
+    //     const likes = Like.find({ userID: parent.id });
+    //     const liked = likes.forEach(likedObj =>
+    //       Like.findById(likedObj.programID)
+    //     );
+    //     return liked;
+    //   }
+    // },
+    // goals: {
+    //   type: GoalType,
+    //   resolve(parent, args) {
+    //     const goalsObj = Goal.find({ userID: parent.id });
+    //     return goalsObj.goal;
+    //   }
+    // }
+  })
+});
 
 // const LikeType = new GraphQLObjectType({
 //   name: "Like",
@@ -297,6 +299,12 @@ const RootQuery = new GraphQLObjectType({
         return Exercise.find({});
       }
     },
+    users: {
+      type: new GraphQLList(UserType),
+      resolve(parent, args) {
+        return User.find({});
+      }
+    },
     categories: {
       type: new GraphQLList(CategoryType),
       resolve(parent, args) {
@@ -330,17 +338,24 @@ const RootQuery = new GraphQLObjectType({
       }
     },
     day: {
-      type: new GraphQLList(DayType),
+      type: DayType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return Day.findById(args.id);
       }
     },
     exercise: {
-      type: new GraphQLList(ExerciseType),
+      type: ExerciseType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return Exercise.findById(args.id);
+      }
+    },
+    user: {
+      type: UserType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return User.findById(args.id);
       }
     },
     category: {
@@ -373,7 +388,8 @@ const Mutation = new GraphQLObjectType({
     addTrainer: {
       type: TrainerType,
       args: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        lastName: { type: new GraphQLNonNull(GraphQLString) },
         age: { type: new GraphQLNonNull(GraphQLInt) },
         specialty: { type: new GraphQLNonNull(GraphQLString) },
         sex: { type: new GraphQLNonNull(GraphQLString) },
@@ -385,7 +401,8 @@ const Mutation = new GraphQLObjectType({
       },
       resolve(parent, args) {
         let trainer = new Trainer({
-          name: args.name,
+          firstName: args.firstName,
+          lastName: args.lastName,
           age: args.age,
           specialty: args.specialty,
           sex: args.sex,
@@ -478,6 +495,34 @@ const Mutation = new GraphQLObjectType({
           muscleGroupID: args.muscleGroupID
         });
         return exercise.save();
+      }
+    },
+    addUser: {
+      type: UserType,
+      args: {
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        lastName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) },
+        sex: { type: new GraphQLNonNull(GraphQLString) },
+        sportsPlayed: { type: GraphQLString },
+        experienceLevel: { type: new GraphQLNonNull(GraphQLString) },
+        picture: { type: GraphQLString },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let user = new User({
+          firstName: args.firstName,
+          lastName: args.lastName,
+          age: args.age,
+          sex: args.sex,
+          sportsPlayed: args.sportsPlayed,
+          experienceLevel: args.experienceLevel,
+          picture: args.picture,
+          email: args.email,
+          password: args.password
+        });
+        return user.save();
       }
     },
     addCategory: {

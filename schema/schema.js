@@ -50,90 +50,102 @@ const ProgramType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     overview: { type: GraphQLString },
-    category: { type: GraphQLString },
     objective: { type: GraphQLString },
     duration: { type: GraphQLString },
     experienceLevel: { type: GraphQLString },
     coverPhoto: { type: GraphQLString },
 
+    category: {
+      type: CategoryType,
+      resolve(parent, args) {
+        return Category.findById(parent.category);
+      }
+    },
     trainer: {
       type: TrainerType,
       resolve(parent, args) {
         return Trainer.findById(parent.trainerID);
       }
+    },
+    days: {
+      type: new GraphQLList(DayType),
+      resolve(parent, args) {
+        return Day.find({ programID: parent.id });
+      }
     }
-    // days: {
-    //   type: new GraphQLList(DayType),
-    //   resolve(parent, args) {
-    //     Day.find({ programID: parent.id });
-    //   }
-    // }
   })
 });
 
-// const DayType = new GraphQLObjectType({
-//   name: "Day",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     name: { type: GraphQLString },
-//     overview: { type: GraphQLString },
-//     coverPhoto: { type: GraphQLString },
+const DayType = new GraphQLObjectType({
+  name: "Day",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    overview: { type: GraphQLString },
+    coverPhoto: { type: GraphQLString },
+    programID: { type: GraphQLID },
 
-//     program: {
-//       type: ProgramType,
-//       resolve(parent, args) {
-//         return Program.findById(parent.programID);
-//       }
-//     },
-//     exercises: {
-//       type: new GraphQLList(ExerciseType),
-//       resolve(parent, args) {
-//         Exercise.find({ dayID: parent.id });
-//       }
-//     },
-//     category: {
-//       type: CategoryType,
-//       resolve(parent, args) {
-//         return Category.findById(parent.categoryID);
-//       }
-//     }
-//   })
-// });
+    equipment: {
+      type: EquipmentType,
+      resolve(parent, args) {
+        return Equipment.findById(parent.equipmentID);
+      }
+    },
+    program: {
+      type: ProgramType,
+      resolve(parent, args) {
+        return Program.findById(parent.programID);
+      }
+    },
+    category: {
+      type: CategoryType,
+      resolve(parent, args) {
+        return Category.findById(parent.categoryID);
+      }
+    }
+    // exercises: {
+    //   type: new GraphQLList(ExerciseType),
+    //   resolve(parent, args) {
+    //     Exercise.find({ dayID: parent.id });
+    //   }
+    // },
+  })
+});
 
-// const ExerciseType = new GraphQLObjectType({
-//   name: "Exercise",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     name: { type: GraphQLString },
-//     overview: { type: GraphQLString },
-//     reps: { type: GraphQLString },
-//     sets: { type: GraphQLString },
-//     time: { type: GraphQLInt },
-//     tips: { type: GraphQLString },
-//     coverPhoto: { type: GraphQLString },
-//     video: { type: GraphQLString },
-//     videoURL: { type: GraphQLString },
+const ExerciseType = new GraphQLObjectType({
+  name: "Exercise",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    overview: { type: GraphQLString },
+    reps: { type: GraphQLString },
+    sets: { type: GraphQLString },
+    time: { type: GraphQLInt },
+    tips: { type: GraphQLString },
+    coverPhoto: { type: GraphQLString },
+    video: { type: GraphQLString },
+    videoURL: { type: GraphQLString },
 
-//     day: {
-//       type: DayType,
-//       resolve(parent, args) {
-//         return Day.findById(parent.dayID);
-//       }
-//     },
-//     equipment: {
-//       type: EquipmentType,
-//       resolve(parent, args) {
-//         return Equipment.findById(parent.equipmentID);
-//       }
-//     },
-//     muscleGroup: {
-//       type: MuscleGroupType,
-//       resolve(parent, args) {
-//         return MuscleGroup.findById(parent.muscleGroupID);
-//       }
-//     }
-//   })
-// });
+    day: {
+      type: DayType,
+      resolve(parent, args) {
+        return Day.findById(parent.dayID);
+      }
+    },
+    equipment: {
+      type: EquipmentType,
+      resolve(parent, args) {
+        return Equipment.findById(parent.equipmentID);
+      }
+    },
+    muscleGroup: {
+      type: MuscleGroupType,
+      resolve(parent, args) {
+        return MuscleGroup.findById(parent.muscleGroupID);
+      }
+    }
+  })
+});
 
 // const UserType = new GraphQLObjectType({
 //   name: "User",
@@ -198,13 +210,13 @@ const ProgramType = new GraphQLObjectType({
 //   })
 // });
 
-// const MuscleGroupType = new GraphQLObjectType({
-//   name: "MuscleGroup",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     type: { type: GraphQLString }
-//   })
-// });
+const MuscleGroupType = new GraphQLObjectType({
+  name: "MuscleGroup",
+  fields: () => ({
+    id: { type: GraphQLID },
+    type: { type: GraphQLString }
+  })
+});
 
 // const EnrolledProgramType = new GraphQLObjectType({
 //   name: "EnrolledProgram",
@@ -226,21 +238,21 @@ const ProgramType = new GraphQLObjectType({
 //   })
 // });
 
-// const CategoryType = new GraphQLObjectType({
-//   name: "Category",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     description: { type: GraphQLString }
-//   })
-// });
+const CategoryType = new GraphQLObjectType({
+  name: "Category",
+  fields: () => ({
+    id: { type: GraphQLID },
+    description: { type: GraphQLString }
+  })
+});
 
-// const EquipmentType = new GraphQLObjectType({
-//   name: "Equipment",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     type: { type: GraphQLString }
-//   })
-// });
+const EquipmentType = new GraphQLObjectType({
+  name: "Equipment",
+  fields: () => ({
+    id: { type: GraphQLID },
+    type: { type: GraphQLString }
+  })
+});
 
 // const GoalType = new GraphQLObjectType({
 //   name: "Goal",
@@ -272,6 +284,36 @@ const RootQuery = new GraphQLObjectType({
         return Program.find({});
       }
     },
+    days: {
+      type: new GraphQLList(DayType),
+      resolve(parent, args) {
+        return Day.find({});
+      }
+    },
+    exercises: {
+      type: new GraphQLList(ExerciseType),
+      resolve(parent, args) {
+        return Exercise.find({});
+      }
+    },
+    categories: {
+      type: new GraphQLList(CategoryType),
+      resolve(parent, args) {
+        return Category.find({});
+      }
+    },
+    equipments: {
+      type: new GraphQLList(EquipmentType),
+      resolve(parent, args) {
+        return Equipment.find({});
+      }
+    },
+    muscleGroups: {
+      type: new GraphQLList(MuscleGroupType),
+      resolve(parent, args) {
+        return MuscleGroup.find({});
+      }
+    },
     trainer: {
       type: TrainerType,
       args: { id: { type: GraphQLID } },
@@ -284,6 +326,41 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return Program.findById(args.id);
+      }
+    },
+    day: {
+      type: new GraphQLList(DayType),
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Day.findById(args.id);
+      }
+    },
+    exercise: {
+      type: new GraphQLList(ExerciseType),
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Exercise.findById(args.id);
+      }
+    },
+    category: {
+      type: CategoryType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Category.findById(args.id);
+      }
+    },
+    equipment: {
+      type: EquipmentType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Equipment.findById(args.id);
+      }
+    },
+    muscleGroup: {
+      type: MuscleGroupType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return MuscleGroup.findById(args.id);
       }
     }
   }
@@ -330,7 +407,7 @@ const Mutation = new GraphQLObjectType({
         objective: { type: new GraphQLNonNull(GraphQLString) },
         duration: { type: new GraphQLNonNull(GraphQLString) },
         experienceLevel: { type: new GraphQLNonNull(GraphQLString) },
-        coverPhoto: { type: new GraphQLNonNull(GraphQLString) }
+        coverPhoto: { type: GraphQLString }
       },
       resolve(parent, args) {
         let program = new Program({
@@ -343,7 +420,65 @@ const Mutation = new GraphQLObjectType({
           experienceLevel: args.experienceLevel,
           coverPhoto: args.coverPhoto
         });
-        program.save();
+        return program.save();
+      }
+    },
+    addDay: {
+      type: DayType,
+      args: {
+        programID: { type: new GraphQLNonNull(GraphQLString) },
+        categoryID: { type: new GraphQLNonNull(GraphQLString) },
+        equipmentID: { type: GraphQLString },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        overview: { type: new GraphQLNonNull(GraphQLString) },
+        coverPhoto: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        let day = new Day({
+          programID: args.programID,
+          name: args.name,
+          overview: args.overview,
+          coverPhoto: args.coverPhoto,
+          categoryID: args.categoryID,
+          equipmentID: args.equipmentID
+        });
+        return day.save();
+      }
+    },
+    addCategory: {
+      type: CategoryType,
+      args: {
+        description: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let category = new Category({
+          description: args.description
+        });
+        return category.save();
+      }
+    },
+    addEquipment: {
+      type: EquipmentType,
+      args: {
+        type: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let equipment = new Equipment({
+          type: args.type
+        });
+        return equipment.save();
+      }
+    },
+    addMuscleGroup: {
+      type: MuscleGroupType,
+      args: {
+        type: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let muscleGroup = new MuscleGroup({
+          type: args.type
+        });
+        return muscleGroup.save();
       }
     }
   }

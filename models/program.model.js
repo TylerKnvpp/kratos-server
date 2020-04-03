@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const ProgramSchema = new Schema({
   trainerID: { type: String, required: true },
+  category: { type: String, required: true },
   name: { type: String, required: true },
   overview: { type: String, required: true },
-  category: { type: String, required: true },
   objective: { type: String, required: true },
   duration: { type: String, required: false },
   experienceLevel: { type: String, required: true },

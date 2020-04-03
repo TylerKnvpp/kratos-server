@@ -9,17 +9,18 @@ const {
   GraphQLNonNull
 } = graphql;
 const _ = require("lodash");
+
 const Trainer = require("../models/trainer.model");
 const Program = require("../models/program.model");
 const Day = require("../models/day.model");
 const Exercise = require("../models/exercise.model");
-const User = require("../models/user.model.js");
-const Like = require("../models/like.model");
 const MuscleGroup = require("../models/muscleGroup.model");
-const EnrolledProgram = require("../models/enrolledProgram.model");
 const Category = require("../models/category.model");
 const Equipment = require("../models/equipment.model");
 const Goal = require("../models/goal.model");
+const User = require("../models/user.model.js");
+const EnrolledProgram = require("../models/enrolledProgram.model");
+const Like = require("../models/like.model");
 
 const TrainerType = new GraphQLObjectType({
   name: "Trainer",
@@ -102,13 +103,13 @@ const DayType = new GraphQLObjectType({
       resolve(parent, args) {
         return Category.findById(parent.categoryID);
       }
+    },
+    exercises: {
+      type: new GraphQLList(ExerciseType),
+      resolve(parent, args) {
+        return Exercise.find({ dayID: parent.id });
+      }
     }
-    // exercises: {
-    //   type: new GraphQLList(ExerciseType),
-    //   resolve(parent, args) {
-    //     Exercise.find({ dayID: parent.id });
-    //   }
-    // },
   })
 });
 
@@ -118,8 +119,8 @@ const ExerciseType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     overview: { type: GraphQLString },
-    reps: { type: GraphQLString },
-    sets: { type: GraphQLString },
+    reps: { type: GraphQLInt },
+    sets: { type: GraphQLInt },
     time: { type: GraphQLInt },
     tips: { type: GraphQLString },
     coverPhoto: { type: GraphQLString },
@@ -426,9 +427,9 @@ const Mutation = new GraphQLObjectType({
     addDay: {
       type: DayType,
       args: {
-        programID: { type: new GraphQLNonNull(GraphQLString) },
-        categoryID: { type: new GraphQLNonNull(GraphQLString) },
-        equipmentID: { type: GraphQLString },
+        programID: { type: new GraphQLNonNull(GraphQLID) },
+        categoryID: { type: new GraphQLNonNull(GraphQLID) },
+        equipmentID: { type: GraphQLID },
         name: { type: new GraphQLNonNull(GraphQLString) },
         overview: { type: new GraphQLNonNull(GraphQLString) },
         coverPhoto: { type: GraphQLString }
@@ -443,6 +444,40 @@ const Mutation = new GraphQLObjectType({
           equipmentID: args.equipmentID
         });
         return day.save();
+      }
+    },
+    addExercise: {
+      type: ExerciseType,
+      args: {
+        dayID: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        overview: { type: new GraphQLNonNull(GraphQLString) },
+        reps: { type: GraphQLInt },
+        sets: { type: new GraphQLNonNull(GraphQLInt) },
+        time: { type: GraphQLInt },
+        tips: { type: new GraphQLNonNull(GraphQLString) },
+        coverPhoto: { type: GraphQLString },
+        video: { type: GraphQLString },
+        videoURL: { type: GraphQLString },
+        muscleGroupID: { type: new GraphQLNonNull(GraphQLID) },
+        equipmentID: { type: GraphQLID }
+      },
+      resolve(parent, args) {
+        let exercise = new Exercise({
+          name: args.name,
+          overview: args.overview,
+          reps: args.reps,
+          sets: args.sets,
+          time: args.time,
+          tips: args.tips,
+          coverPhoto: args.coverPhoto,
+          video: args.video,
+          videoURL: args.videoURL,
+          dayID: args.dayID,
+          equipmentID: args.equipmentID,
+          muscleGroupID: args.muscleGroupID
+        });
+        return exercise.save();
       }
     },
     addCategory: {

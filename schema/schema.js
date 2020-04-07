@@ -161,7 +161,14 @@ const UserType = new GraphQLObjectType({
     experienceLevel: { type: GraphQLString },
     picture: { type: GraphQLString },
     email: { type: GraphQLString },
-    password: { type: GraphQLString }
+    password: { type: GraphQLString },
+
+    goal: {
+      type: GoalType,
+      resolve(parent, args) {
+        return Goal.findById(parent.goal);
+      }
+    }
 
     // programs: {
     //   type: new GraphQLList(ProgramType),
@@ -183,13 +190,6 @@ const UserType = new GraphQLObjectType({
     //     return liked;
     //   }
     // },
-    // goals: {
-    //   type: GoalType,
-    //   resolve(parent, args) {
-    //     const goalsObj = Goal.find({ userID: parent.id });
-    //     return goalsObj.goal;
-    //   }
-    // }
   })
 });
 
@@ -257,20 +257,13 @@ const EquipmentType = new GraphQLObjectType({
   })
 });
 
-// const GoalType = new GraphQLObjectType({
-//   name: "Goal",
-//   fields: () => ({
-//     id: { type: GraphQLID },
-//     goal: { type: GraphQLString },
-
-//     user: {
-//       type: UserType,
-//       resolve(parent, args) {
-//         return User.findById(parent.userID);
-//       }
-//     }
-//   })
-// });
+const GoalType = new GraphQLObjectType({
+  name: "Goal",
+  fields: () => ({
+    id: { type: GraphQLID },
+    goal: { type: GraphQLString }
+  })
+});
 
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
@@ -321,6 +314,12 @@ const RootQuery = new GraphQLObjectType({
       type: new GraphQLList(MuscleGroupType),
       resolve(parent, args) {
         return MuscleGroup.find({});
+      }
+    },
+    goals: {
+      type: new GraphQLList(GoalType),
+      resolve(parent, args) {
+        return Goal.find({});
       }
     },
     trainer: {
@@ -377,6 +376,13 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         return MuscleGroup.findById(args.id);
+      }
+    },
+    goal: {
+      type: GoalType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return Goal.findById(args.id);
       }
     }
   }
@@ -525,6 +531,18 @@ const Mutation = new GraphQLObjectType({
         return user.save();
       }
     },
+    addGoalToUser: {
+      type: UserType,
+      args: {
+        userID: { type: GraphQLNonNull(GraphQLID) },
+        goalID: { type: GraphQLNonNull(GraphQLID) }
+      },
+      resolve(parent, args) {
+        let userObj = User.findOneAndUpdate({ id }, input, { new: true });
+
+        return userObj.save();
+      }
+    },
     addCategory: {
       type: CategoryType,
       args: {
@@ -559,6 +577,18 @@ const Mutation = new GraphQLObjectType({
           type: args.type
         });
         return muscleGroup.save();
+      }
+    },
+    addGoal: {
+      type: GoalType,
+      args: {
+        goal: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let goal = new Goal({
+          goal: args.goal
+        });
+        return goal.save();
       }
     }
   }

@@ -10,7 +10,10 @@ const UserSchema = new Schema({
   experienceLevel: { type: String, required: true },
   picture: { data: Buffer, contentType: String, required: false },
   email: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  goal: { type: String, required: true },
+  programs: [{ type: Schema.Types.ObjectId, ref: "Enrolled" }],
+  likes: [{ type: Schema.Types.ObjectId, ref: "Like" }],
 });
 
 module.exports = mongoose.model("User", UserSchema);
